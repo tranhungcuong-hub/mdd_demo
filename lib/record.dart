@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:record/record.dart';
 
 class AudioRecorder extends StatefulWidget {
@@ -88,8 +89,6 @@ class _AudioRecorderState extends State<AudioRecorder> {
               _buildRecordStopControl(),
               const SizedBox(width: 20),
               _buildPauseResumeControl(),
-              const SizedBox(width: 20),
-              _buildText(),
             ],
           ),
           // if (_amplitude != null) ...[
@@ -112,27 +111,34 @@ class _AudioRecorderState extends State<AudioRecorder> {
   }
 
   Widget _buildRecordStopControl() {
-    late Icon icon;
-    late Color color;
+    late SvgPicture svgIcon;
 
     if (_recordState != RecordState.stop) {
-      icon = const Icon(Icons.stop, color: Colors.red, size: 30);
-      color = Colors.red.withOpacity(0.1);
+      svgIcon = SvgPicture.asset(
+        'assets/images/mic.svg',
+        // fit: BoxFit.cover,
+      );
     } else {
-      final theme = Theme.of(context);
-      icon = Icon(Icons.mic, color: theme.primaryColor, size: 30);
-      color = theme.primaryColor.withOpacity(0.1);
+      svgIcon = SvgPicture.asset(
+        'assets/images/mic.svg',
+      );
     }
-
-    return ClipOval(
-      child: Material(
-        color: color,
-        child: InkWell(
-          child: SizedBox(width: 56, height: 56, child: icon),
-          onTap: () {
-            (_recordState != RecordState.stop) ? _stop() : _start();
-          },
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFFFFBF85),
+      ),
+      child: OutlinedButton(
+        onPressed: () {},
+        style: ButtonStyle(
+          side: MaterialStateProperty.all<BorderSide>(
+            BorderSide.none,
+          ),
+          padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
         ),
+        child: svgIcon,
       ),
     );
   }
@@ -158,21 +164,17 @@ class _AudioRecorderState extends State<AudioRecorder> {
       child: Material(
         color: color,
         child: InkWell(
-          child: SizedBox(width: 56, height: 56, child: icon),
+          child: SizedBox(
+            width: 56,
+            height: 56,
+            child: icon,
+          ),
           onTap: () {
             (_recordState == RecordState.pause) ? _resume() : _pause();
           },
         ),
       ),
     );
-  }
-
-  Widget _buildText() {
-    if (_recordState != RecordState.stop) {
-      return _buildTimer();
-    }
-
-    return const Text("Waiting to record");
   }
 
   Widget _buildTimer() {
