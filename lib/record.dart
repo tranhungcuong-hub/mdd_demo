@@ -18,6 +18,7 @@ class _AudioRecorderState extends State<AudioRecorder> {
   int _recordDuration = 0;
   Timer? _timer;
   final _audioRecorder = Record();
+  bool isRecording = false;
   StreamSubscription<RecordState>? _recordSub;
   RecordState _recordState = RecordState.stop;
   StreamSubscription<Amplitude>? _amplitudeSub;
@@ -87,8 +88,8 @@ class _AudioRecorderState extends State<AudioRecorder> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               _buildRecordStopControl(),
-              const SizedBox(width: 20),
-              _buildPauseResumeControl(),
+              // const SizedBox(width: 20),
+              // _buildPauseResumeControl(),
             ],
           ),
           // if (_amplitude != null) ...[
@@ -131,7 +132,12 @@ class _AudioRecorderState extends State<AudioRecorder> {
         color: Color(0xFFFFBF85),
       ),
       child: OutlinedButton(
-        onPressed: () {},
+        onPressed: () {
+          isRecording ? _stop() : _start();
+          setState(() {
+            isRecording = !isRecording;
+          });
+        },
         style: ButtonStyle(
           side: MaterialStateProperty.all<BorderSide>(
             BorderSide.none,
@@ -170,7 +176,7 @@ class _AudioRecorderState extends State<AudioRecorder> {
             child: icon,
           ),
           onTap: () {
-            (_recordState == RecordState.pause) ? _resume() : _pause();
+            (_recordState == RecordState.pause) ? _resume() : _stop();
           },
         ),
       ),

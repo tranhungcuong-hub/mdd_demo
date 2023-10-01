@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mdd_demo/api/sentence_api.dart';
 import 'package:mdd_demo/record.dart';
+import 'package:http/http.dart' as http;
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -26,7 +27,19 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       isLoading = false;
     });
-    print(data['results'][0]['lexicalEntries'][0]['sentences'].length);
+    // print(data['results'][0]['lexicalEntries'][0]['sentences'].length);
+  }
+
+  Future<void> getModelResult(String audioPath) async {
+    try {
+      if (audioPath.isNotEmpty) {
+        print('abc');
+        final response = await http.post(Uri.parse('http://127.0.0.1:5000/'),
+            body: {'audio_path': audioPath});
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -41,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       Source urlSource = UrlSource(audioPath!);
       await audioPlayer.play(urlSource);
+      await getModelResult(audioPath!);
     } catch (e) {
       print(e);
     }
@@ -49,18 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   title: Text(widget.title),
-      //   actions: [
-      //     IconButton(
-      //       onPressed: () {
-      //         fetchEngSentence(); // Call the fetchEngSentence function to refresh data
-      //       },
-      //       icon: Icon(Icons.refresh),
-      //     ),
-      //   ],
-      // ),
       body: isLoading == false
           ? Container(
               decoration: const BoxDecoration(
@@ -94,9 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding: const EdgeInsets.only(left: 20, right: 20),
                         child: Center(
                           child: Text(
-                            data['results'][0]['lexicalEntries'][0]['sentences']
-                                    [29]['text']
-                                .toString(),
+                            'jhgjh'.toString(),
                             style: const TextStyle(
                               fontSize: 20,
                               overflow: TextOverflow.clip,
@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: 40,
                   ),
                   AudioRecorder(
-                    onStop: (String path) {
+                    onStop: (String path) async {
                       if (kDebugMode) print('Recorded file path: $path');
                       audioPath = path;
                       showPlayer = true;
