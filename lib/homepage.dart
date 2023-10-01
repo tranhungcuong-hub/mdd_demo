@@ -17,7 +17,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool showPlayer = false;
-  late String audioPath;
+  String audioPath = "";
   late AudioPlayer audioPlayer;
   bool isLoading = false;
   bool isShowed = false;
@@ -37,26 +37,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> getModelResult(String audioPath) async {
     try {
-      final response = await http.post(Uri.parse('http://127.0.0.1:5000/'),
-          body: {'audio_path': audioPath});
+      if (audioPath.isNotEmpty) {
+        final response = await http.post(Uri.parse('http://127.0.0.1:5000/'),
+            body: {'audio_path': audioPath});
 
-      if (response.statusCode == 200) {
-        // If the server returns a 200 OK response, parse the JSON
-        Map<String, dynamic> result = json.decode(response.body);
+        if (response.statusCode == 200) {
+          // If the server returns a 200 OK response, parse the JSON
+          Map<String, dynamic> result = json.decode(response.body);
 
-        // Assuming the response format is as follows: {'word': confidence}
-        // You can convert it to the desired format like this:
-        Map<String, double> resultMap = {};
-        result.forEach((key, value) {
-          resultMap[key] = double.parse(value.toString());
-        });
+          // Assuming the response format is as follows: {'word': confidence}
+          // You can convert it to the desired format like this:
+          Map<String, double> resultMap = {};
+          result.forEach((key, value) {
+            resultMap[key] = double.parse(value.toString());
+          });
 
-        setState(() {
-          res = resultMap;
-        });
-      } else {
-        // Handle other response codes if needed
-        print('Request failed with status: ${response.statusCode}');
+          setState(() {
+            res = resultMap;
+          });
+        } else {
+          // Handle other response codes if needed
+          print('Request failed with status: ${response.statusCode}');
+        }
       }
     } catch (e) {
       print(e);
@@ -121,19 +123,19 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20, right: 20),
-                        child: isShowed
+                        child: isShowed == false
                             ? const Center(
                                 child: Text(
                                   'Today is a beautiful day',
                                   style: TextStyle(
                                     fontSize: 20,
                                     overflow: TextOverflow.clip,
-                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               )
                             : MyResultCard(
                                 words: res,
+                                text: 'Today is a beautiful day',
                               ),
                       ),
                     ),
