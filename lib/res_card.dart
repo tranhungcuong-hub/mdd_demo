@@ -36,23 +36,6 @@ class _MyResultCardState extends State<MyResultCard> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      // children: wordMap.keys.map((word) {
-      //   var value = wordMap[word];
-      //   var color = value! < 0.8 ? Colors.green : Colors.red;
-      //   return Padding(
-      //     padding: const EdgeInsets.only(right: 8.0),
-      //     child: RichText(
-      //       text: TextSpan(
-      //         style: TextStyle(fontSize: 20, color: color),
-      //         children: [
-      //           TextSpan(
-      //               text: word,
-      //               style: const TextStyle(fontWeight: FontWeight.bold)),
-      //         ],
-      //       ),
-      //     ),
-      //   );
-      // }).toList(),
       children: wordWidgets,
     );
   }

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mdd_demo/api/sentence_api.dart';
 import 'package:mdd_demo/record.dart';
 import 'package:http/http.dart' as http;
 import 'package:mdd_demo/res_card.dart';
@@ -21,6 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late AudioPlayer audioPlayer;
   bool isLoading = false;
   bool isShowed = false;
+  Map<String, String> text = {};
   Map<String, double> res = {};
   Map<String, dynamic> data = {};
 
@@ -28,11 +28,18 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       isLoading = true;
     });
-    data = await fetchSentences();
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:5000/'),
+      body: {'audio_path': audioPath},
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        text = json.decode(response.body);
+      });
+    }
     setState(() {
       isLoading = false;
     });
-    // print(data['results'][0]['lexicalEntries'][0]['sentences'].length);
   }
 
   Future<void> getModelResult(String audioPath) async {
@@ -124,10 +131,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20, right: 20),
                         child: isShowed == false
-                            ? const Center(
+                            ? Center(
                                 child: Text(
-                                  'Today is a beautiful day',
-                                  style: TextStyle(
+                                  text['text'].toString(),
+                                  style: const TextStyle(
                                     fontSize: 20,
                                     overflow: TextOverflow.clip,
                                   ),
@@ -135,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               )
                             : MyResultCard(
                                 words: res,
-                                text: 'Today is a beautiful day',
+                                text: text['text'].toString(),
                               ),
                       ),
                     ),
@@ -195,6 +202,15 @@ class _MyHomePageState extends State<MyHomePage> {
           : const Center(
               child: CircularProgressIndicator(),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          fetchEngSentence();
+        },
+        child: const Icon(
+          Icons.refresh,
+          size: 30,
+        ),
+      ),
     );
   }
 
