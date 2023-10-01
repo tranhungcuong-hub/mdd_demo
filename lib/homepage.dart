@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mdd_demo/api/sentence_api.dart';
 import 'package:mdd_demo/record.dart';
 import 'package:http/http.dart' as http;
+import 'package:mdd_demo/res_card.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -14,9 +15,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool showPlayer = false;
-  String? audioPath;
+  late String audioPath;
   late AudioPlayer audioPlayer;
   bool isLoading = false;
+  bool isShowed = false;
   Map<String, dynamic> data = {};
 
   void fetchEngSentence() async {
@@ -60,6 +62,12 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> checkRes() async {
+    if (audioPath.isNotEmpty) {
+      await getModelResult(audioPath);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding:
                         const EdgeInsets.only(top: 250, left: 20, right: 20),
                     child: Container(
-                      height: 200,
+                      height: 150,
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         color: Colors.white,
@@ -94,16 +102,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20, right: 20),
-                        child: Center(
-                          child: Text(
-                            'jhgjh'.toString(),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              overflow: TextOverflow.clip,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        child: isShowed
+                            ? const Center(
+                                child: Text(
+                                  'Today is a beautiful day',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    overflow: TextOverflow.clip,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            : const MyResultCard(
+                                words: {},
+                              ),
                       ),
                     ),
                   ),
@@ -131,7 +143,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           .withOpacity(0.3),
                     ),
                     child: OutlinedButton(
-                      onPressed: playRecording,
+                      onPressed: () {
+                        checkRes();
+                        setState(() {
+                          isShowed = !isShowed;
+                        });
+                      },
                       style: ButtonStyle(
                         shape:
                             MaterialStateProperty.all<RoundedRectangleBorder>(
