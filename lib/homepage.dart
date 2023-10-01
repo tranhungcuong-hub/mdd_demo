@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late AudioPlayer audioPlayer;
   bool isLoading = false;
   bool isShowed = false;
+  Map<String, double> res = {};
   Map<String, dynamic> data = {};
 
   void fetchEngSentence() async {
@@ -34,10 +37,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> getModelResult(String audioPath) async {
     try {
-      if (audioPath.isNotEmpty) {
-        print('abc');
-        final response = await http.post(Uri.parse('http://127.0.0.1:5000/'),
-            body: {'audio_path': audioPath});
+      final response = await http.post(Uri.parse('http://127.0.0.1:5000/'),
+          body: {'audio_path': audioPath});
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        Map<String, dynamic> result = json.decode(response.body);
+
+        // Assuming the response format is as follows: {'word': confidence}
+        // You can convert it to the desired format like this:
+        Map<String, double> resultMap = {};
+        result.forEach((key, value) {
+          resultMap[key] = double.parse(value.toString());
+        });
+
+        setState(() {
+          res = resultMap;
+        });
+      } else {
+        // Handle other response codes if needed
+        print('Request failed with status: ${response.statusCode}');
       }
     } catch (e) {
       print(e);
@@ -106,15 +125,15 @@ class _MyHomePageState extends State<MyHomePage> {
                             ? const Center(
                                 child: Text(
                                   'Today is a beautiful day',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 20,
                                     overflow: TextOverflow.clip,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               )
-                            : const MyResultCard(
-                                words: {},
+                            : MyResultCard(
+                                words: res,
                               ),
                       ),
                     ),
